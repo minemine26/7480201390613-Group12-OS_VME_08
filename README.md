@@ -27,28 +27,7 @@ Dự án này là bài tập lớn môn **Hệ điều hành (Operating System)*
 
 ## 📁 Repository Structure (Cấu trúc thư mục)
 
-Dự án tuân thủ nghiêm ngặt cấu trúc thư mục được yêu cầu:
-OS_Project/
-├── CODE/ # Toàn bộ mã nguồn của ứng dụng
-│ ├── main.py # Điểm khởi chạy chính
-│ ├── algorithms.py # Các thuật toán FIFO, LRU, OPT
-│ ├── gui.py # Giao diện đồ họa 
-│ ├── file_handler.py # Đọc/ghi file CSV
-│ └── simulation_engine.py# Engine chạy mô phỏng
-├── DOCX/ # Báo cáo Word
-├── Extra/ # Tài liệu bổ sung, CSV mẫu, video demo, ...
-├── PPTX/ # Slide thuyết trình PowerPoint
-├── input/ # File CSV đầu vào
-│ └── input.csv # Dữ liệu mẫu
-├── output/ # Kết quả xuất ra
-├── .gitignore
-├── requirements.txt # Danh sách thư viện cần cài đặt
-└── README.md 
-
-
-> **Lưu ý:** Thư mục `output/` và các file CSV kết quả được đưa vào `.gitignore` để không đẩy lên GitHub.
-
----
+( chưa làm ) 
 
 ## 🛠️ Technologies Used (Công nghệ dự kiến sử dụng)
 
