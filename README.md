@@ -10,7 +10,7 @@
 | STT | Họ và tên      | Mã số sinh viên |
 |-----|----------------|------------------|
 | 1   | Trần Ngọc Mai  | 089305019922     |
-
+| 2   | Nguyễn Đoàn Thành Đạt | 033206000242 | 
 ---
 
 ## 📖 Project Description (Mô tả dự án)
@@ -26,8 +26,12 @@ Dự án này là bài tập lớn môn **Hệ điều hành (Operating System)*
 ---
 
 ## 📁 Repository Structure (Cấu trúc thư mục)
-
-( chưa làm ) 
+- `CODE/`: Chứa toàn bộ mã nguồn (Source code) Python của ứng dụng.
+- `DOCX/`: Chứa file báo cáo định dạng Word tổng kết quá trình làm đồ án, các thuật toán và bài học kinh nghiệm.
+- `Extra/`: Chứa các tài liệu bổ sung, bằng chứng kiểm thử (video demo, ảnh chụp màn hình).
+- `PPTX/`: Chứa file slide thuyết trình PowerPoint.
+- `input/`: Chứa các file `.csv` dữ liệu mẫu đầu vào (chuỗi tham chiếu, số khung trang).
+- `output/`: Chứa các file `.csv` kết quả xuất ra sau khi chạy mô phỏng thuật toán.
 
 ## 🛠️ Technologies Used (Công nghệ dự kiến sử dụng)
 
