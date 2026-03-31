@@ -4,15 +4,10 @@
 **Project Code:** OS_VME_08
 
 ##  Danh sách thành viên Nhóm 12
->>>>>>> 0ce75b5 (update project structure + README)
-
 | STT | Họ và tên             | Mã số sinh viên |
 | --- | --------------------- | --------------- |
 | 1   | Trần Ngọc Mai         | 089305019922    |
 | 2   | Nguyễn Đoàn Thành Đạt | 033206000242    |
-
----
-<<<<<<< HEAD
 
 ## 📁 Repository Structure (Cấu trúc thư mục)
 - `CODE/`: Chứa toàn bộ mã nguồn (Source code) Python của ứng dụng.
@@ -29,10 +24,6 @@
 - **Data Handling:** pandas, csv (Python built-in)
 - **Visualization:** matplotlib (cho biểu đồ so sánh)
 - **Version Control:** Git, GitHub
-
----
-
-=======
 
 ##  Mô tả dự án
 
@@ -206,4 +197,3 @@ python CODE/main.py
 Dự án giúp minh họa rõ ràng cách hoạt động của các thuật toán thay thế trang trong hệ điều hành, đồng thời cung cấp công cụ trực quan để so sánh hiệu năng giữa các thuật toán.
 
 Đây là nền tảng để mở rộng thêm các thuật toán khác như **LFU, MFU** hoặc nâng cấp giao diện trực quan trong tương lai.
->>>>>>> 0ce75b5 (update project structure + README)
