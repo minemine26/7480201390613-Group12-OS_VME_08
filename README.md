@@ -8,6 +8,8 @@
 | --- | --------------------- | --------------- |
 | 1   | Trần Ngọc Mai         | 089305019922    |
 | 2   | Nguyễn Đoàn Thành Đạt | 033206000242    |
+| 3   | Nguyễn Văn Minh Đức   | 066206007328    |
+
 
 ## 📁 Repository Structure (Cấu trúc thư mục)
 - `CODE/`: Chứa toàn bộ mã nguồn (Source code) Python của ứng dụng.
