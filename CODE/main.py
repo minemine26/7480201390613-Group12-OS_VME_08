@@ -1,43 +1,54 @@
-from algorithms.fifo import FIFO
-from algorithms.lru import LRU
-from algorithms.opt import OPT
+from engine.simulation_engine import SimulationEngine
+
+def print_result(result):
+    print(f"\n=== {result['algorithm']} ===")
+    print(f"Frame count: {result['frame_count']}")
+    print(f"Reference string: {result['reference_string']}")
+    print("-" * 50)
+
+    for step in result["results"]:
+        print(
+            f"Step {step['step']:2} | "
+            f"Page: {step['page']:2} | "
+            f"Frames: {step['frames']} | "
+            f"Fault: {step['fault']}"
+        )
+
+    print("-" * 50)
+    print(f"Total Page Faults: {result['total_faults']}")
+
+
+def print_comparison(compare):
+    print("\n=== COMPARISON ===")
+    for name, data in compare.items():
+        print(f"{name}: {data['faults']} faults")
+
+
+def test_single_algorithm(engine, ref_list, frame_count):
+    for algo in ["FIFO", "LRU", "OPT"]:
+        result = engine.run(algo, ref_list, frame_count)
+        print_result(result)
+
+
+def test_comparison(engine, ref_list, frame_count):
+    compare = engine.run_all(ref_list, frame_count)
+    print_comparison(compare)
+
+
+def test_step_mode(engine, ref_list, frame_count):
+    print("\n=== STEP MODE (OPT) ===")
+    for step in engine.step_mode("OPT", ref_list, frame_count):
+        print(step)
+
+
 if __name__ == "__main__":
+    engine = SimulationEngine()
+
     ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
     frame_count = 3
 
-    # FIFO
-    fifo = FIFO()
-    fifo_result = fifo.simulate(ref_list, frame_count)
+    test_single_algorithm(engine, ref_list, frame_count)
 
-    print("=== FIFO ===")
-    for r in fifo_result:
-        print(r)
+    test_comparison(engine, ref_list, frame_count)
 
-    fifo_faults = sum(1 for r in fifo_result if r["fault"])
-    print("Total FIFO faults:", fifo_faults)
-
-    print("\n")
-
-    # LRU
-    lru = LRU()
-    lru_result = lru.simulate(ref_list, frame_count)
-
-    print("=== LRU ===")
-    for r in lru_result:
-        print(r)
-
-    lru_faults = sum(1 for r in lru_result if r["fault"])
-    print("Total LRU faults:", lru_faults)
-    
-    print("\n")
-    
-    #OPT
-    opt = OPT()
-    opt_result = opt.simulate(ref_list, frame_count)
-
-    print("=== OPT ===")
-    for r in opt_result:
-        print(r)
-
-    opt_faults = sum(1 for r in opt_result if r["fault"])
-    print("Total OPT faults:", opt_faults)
+    test_step_mode(engine, ref_list, frame_count)
