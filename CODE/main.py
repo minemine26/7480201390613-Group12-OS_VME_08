@@ -1,5 +1,11 @@
-from engine.simulation_engine import SimulationEngine
+from engine import SimulationEngine
+from utils.file_handler import CSVInputHandler, CSVOutputHandler
+import os
 
+
+# ===============================
+# HIỂN THỊ KẾT QUẢ
+# ===============================
 def print_result(result):
     print(f"\n=== {result['algorithm']} ===")
     print(f"Frame count: {result['frame_count']}")
@@ -18,37 +24,60 @@ def print_result(result):
     print(f"Total Page Faults: {result['total_faults']}")
 
 
+# ===============================
+# SO SÁNH THUẬT TOÁN
+# ===============================
 def print_comparison(compare):
     print("\n=== COMPARISON ===")
     for name, data in compare.items():
         print(f"{name}: {data['faults']} faults")
 
 
-def test_single_algorithm(engine, ref_list, frame_count):
+# ===============================
+# CHƯƠNG TRÌNH CHÍNH
+# ===============================
+if __name__ == "__main__":
+
+    # 1. ĐỌC FILE CSV
+    try:
+        input_path = "input/input.csv"
+        ref_list = CSVInputHandler.read_csv(input_path)
+    except Exception as e:
+        print("Lỗi đọc file CSV:", e)
+        exit()
+
+    # 2. CẤU HÌNH FRAME
+    frame_count = 3
+
+    # 3. KHỞI TẠO ENGINE
+    engine = SimulationEngine()
+
+    # 4. CHẠY TỪNG THUẬT TOÁN
     for algo in ["FIFO", "LRU", "OPT"]:
         result = engine.run(algo, ref_list, frame_count)
         print_result(result)
 
-
-def test_comparison(engine, ref_list, frame_count):
+    # 5. SO SÁNH
     compare = engine.run_all(ref_list, frame_count)
     print_comparison(compare)
 
-
-def test_step_mode(engine, ref_list, frame_count):
+    # 6. STEP MODE (TEST)
     print("\n=== STEP MODE (OPT) ===")
     for step in engine.step_mode("OPT", ref_list, frame_count):
         print(step)
 
+    # 7. XUẤT FILE CSV (LRU)
+    try:
+        output_path = "../output/output.csv"
 
-if __name__ == "__main__":
-    engine = SimulationEngine()
+        # tạo thư mục nếu chưa có
+        os.makedirs("output", exist_ok=True)
 
-    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
-    frame_count = 3
+        output_path = "output/output.csv"
+        CSVOutputHandler.write_csv(output_path, result["results"])
 
-    test_single_algorithm(engine, ref_list, frame_count)
+        print("\nXuất file CSV thành công!")
+        print("File nằm tại:", output_path)
 
-    test_comparison(engine, ref_list, frame_count)
-
-    test_step_mode(engine, ref_list, frame_count)
+    except Exception as e:
+        print("Lỗi ghi file CSV:", e)
