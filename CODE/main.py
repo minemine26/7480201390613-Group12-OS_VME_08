@@ -31,7 +31,20 @@ def print_comparison(compare):
     print("\n=== COMPARISON ===")
     for name, data in compare.items():
         print(f"{name}: {data['faults']} faults")
-
+    print("-" * 50)
+    try:
+        opt_f = compare['OPT']['faults']
+        lru_f = compare['LRU']['faults']
+        fifo_f = compare['FIFO']['faults']
+        
+        # Bắt đầu so sánh với lý thuyết: OPT <= LRU <= FIFO
+        print("KIỂM TRA LÝ THUYẾT (OPT <= LRU <= FIFO):")
+        if opt_f <= lru_f <= fifo_f:
+            print("KẾT QUẢ: Thuật toán chạy đúng với lý thuyết Hệ điều hành.")
+        else:
+            print("CẢNH BÁO: Kết quả sai lệch với lý thuyết.")  
+    except KeyError:
+        print("Lỗi: Không đủ dữ liệu 3 thuật toán để so sánh.")
 
 # ===============================
 # CHƯƠNG TRÌNH CHÍNH
@@ -66,7 +79,7 @@ if __name__ == "__main__":
     for step in engine.step_mode("OPT", ref_list, frame_count):
         print(step)
 
-    # 7. XUẤT FILE CSV (LRU)
+    # 7. XUẤT FILE CSV
     try:
         output_path = "../output/output.csv"
 
