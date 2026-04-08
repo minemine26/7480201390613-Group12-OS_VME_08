@@ -27,4 +27,5 @@ class FIFO(PageReplacementAlgorithm):
 
         return results
     
-    #chịu trách nhiệm nhận dữ liệu đầu vài, xử lý mô phỏng thay trang và trả ra output 
+    #chịu trách nhiệm nhận dữ liệu đầu vào, xử lý mô phỏng thay trang và trả ra output 
+    #cơ bản là xử lý logic cho đồ án 

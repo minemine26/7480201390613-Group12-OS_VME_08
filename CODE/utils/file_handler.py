@@ -1,11 +1,19 @@
 import csv
 import os
 
-class CSVInputHandler:
-    
+
+class CSVHandler:
+    """
+    Xử lý CSV:
+    - read_csv: đọc input
+    - validate_format_file: kiểm tra file
+    - write_csv: ghi output
+    """
+
+    # ================= READ =================
     @staticmethod
     def read_csv(filepath):
-        CSVInputHandler.validate_format_file(filepath)
+        CSVHandler.validate_format_file(filepath)
 
         pages = []
 
@@ -32,6 +40,7 @@ class CSVInputHandler:
 
         return pages
 
+    # ================= VALIDATE =================
     @staticmethod
     def validate_format_file(filepath):
         if not os.path.exists(filepath):
@@ -43,30 +52,20 @@ class CSVInputHandler:
         if os.path.getsize(filepath) == 0:
             raise ValueError("File CSV rỗng.")
 
-import csv
-import os
-
-class CSVOutputHandler:
-
+    # ================= WRITE =================
     @staticmethod
     def write_csv(filepath, results):
-        """
-        Ghi kết quả mô phỏng ra file CSV
-        :param filepath: đường dẫn file output
-        :param results: list các step từ engine
-        """
-
         try:
-            # Tạo thư mục nếu chưa tồn tại
+            # Tạo folder nếu chưa có
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
             with open(filepath, mode='w', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file)
 
-                # Header đúng format đề
+                # Header
                 writer.writerow(["Step", "Page", "Frames", "Fault"])
 
-                # Ghi từng bước
+                # Data
                 for step in results:
                     writer.writerow([
                         step.get("step"),
@@ -74,6 +73,8 @@ class CSVOutputHandler:
                         " ".join(map(str, step.get("frames", []))),
                         step.get("fault")
                     ])
+
+            print(f"Đã ghi file output: {filepath}")
 
         except Exception as e:
             raise RuntimeError(f"Lỗi khi ghi file CSV: {e}")

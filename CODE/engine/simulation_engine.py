@@ -1,17 +1,8 @@
-# engine/simulation_engine.py
-
-from algorithms.fifo import FIFO
-from algorithms.lru import LRU
-from algorithms.opt import OPT
+from algorithms import FIFO, LRU, OPT
 
 
 class SimulationEngine:
-    """
-    Simulation Engine:
-    - Tách logic khỏi GUI
-    - Quản lý các thuật toán thay trang
-    - Hỗ trợ chạy full và step-by-step
-    """
+
 
     def __init__(self):
         self.algorithms = {
@@ -20,9 +11,7 @@ class SimulationEngine:
             "OPT": OPT()
         }
 
-    # =========================
-    # VALIDATION
-    # =========================
+  
     def validate_input(self, ref_list, frame_count):
         if not isinstance(ref_list, list) or len(ref_list) == 0:
             raise ValueError("Reference string must be a non-empty list")
@@ -33,17 +22,13 @@ class SimulationEngine:
         if not all(isinstance(x, int) for x in ref_list):
             raise ValueError("Reference string must contain integers only")
 
-    # =========================
-    # GET ALGORITHM
-    # =========================
+
     def _get_algorithm(self, name):
         if name not in self.algorithms:
             raise ValueError(f"Unsupported algorithm: {name}")
         return self.algorithms[name]
 
-    # =========================
-    # 3.2 RUN FULL SIMULATION
-    # =========================
+   
     def run(self, algorithm_name, ref_list, frame_count):
         self.validate_input(ref_list, frame_count)
 
@@ -60,9 +45,7 @@ class SimulationEngine:
             "total_faults": total_faults
         }
 
-    # =========================
-    # RUN ALL (BONUS)
-    # =========================
+   
     def run_all(self, ref_list, frame_count):
         self.validate_input(ref_list, frame_count)
 
@@ -78,9 +61,7 @@ class SimulationEngine:
 
         return comparison
 
-    # =========================
-    # 3.4 STEP MODE (GENERATOR)
-    # =========================
+
     def step_mode(self, algorithm_name, ref_list, frame_count):
         self.validate_input(ref_list, frame_count)
 
@@ -89,3 +70,6 @@ class SimulationEngine:
 
         for step in results:
             yield step
+            
+    # lớp trung gian giữa GUI và agorithms
+    # lưa chọn, thực thi và chuẩn hóa kết quả 
