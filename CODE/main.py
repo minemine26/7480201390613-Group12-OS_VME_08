@@ -1,8 +1,16 @@
+import os
+import sys
+
+CURRENT_DIR = os.path.dirname(__file__)
+sys.path.append(CURRENT_DIR)
+
 from algorithms import FIFO, LRU, OPT
 from engine import SimulationEngine
 from utils.file_handler import CSVHandler
+import os
 
 
+# ================= PRINT =================
 def print_result(name, result):
     print(f"\n=== {name} ===")
 
@@ -18,65 +26,87 @@ def print_result(name, result):
     print(f"Total Page Faults: {total_faults}")
 
 
-# ================= DEMO ALGORITHMS =================
+# ================= DEMO =================
 def demo_algorithms():
     print("\n=== DEMO ALGORITHMS ===")
 
     ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
     frame_count = 3
 
-    fifo = FIFO()
-    lru = LRU()
-    opt = OPT()
-
-    print_result("FIFO", fifo.simulate(ref_list, frame_count))
-    print_result("LRU", lru.simulate(ref_list, frame_count))
-    print_result("OPT", opt.simulate(ref_list, frame_count))
+    print_result("FIFO", FIFO().simulate(ref_list, frame_count))
+    print_result("LRU", LRU().simulate(ref_list, frame_count))
+    print_result("OPT", OPT().simulate(ref_list, frame_count))
 
 
-# ================= TEST ENGINE =================
+# ================= ENGINE =================
 def test_engine():
     print("\n=== TEST SIMULATION ENGINE ===")
 
     engine = SimulationEngine()
     ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
-    frame_count = 3
 
-    result = engine.run("LRU", ref_list, frame_count)
+    result = engine.run("LRU", ref_list, 3)
 
     print("Algorithm:", result["algorithm"])
     print("Total faults:", result["total_faults"])
-    print("First step:", result["results"][0])
 
 
-# ================= TEST CSV =================
-def test_csv():
-    print("\n=== TEST CSV → OUTPUT ===")
+# ================= BUILD RANKING =================
+def build_ranking(results_map):
+    sorted_algos = sorted(results_map.items(), key=lambda x: x[1])
 
-    # ✅ Input (absolute path chuẩn)
-    input_path = r"C:\Users\Asus\Desktop\OS_Project\input\input.csv"
+    labels = ["BEST", "BETTER", "WORST"]
+    ranking = {}
 
-    # ✅ Output
-    output_path = r"C:\Users\Asus\Desktop\OS_Project\output\result.csv"
+    for i, (algo, _) in enumerate(sorted_algos):
+        ranking[algo] = labels[i]
+
+    return ranking
+
+
+# ================= EXPORT =================
+def export_all_algorithms():
+    print("\n=== EXPORT ALL ALGORITHMS ===")
+
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    input_path = os.path.join(BASE_DIR, "input", "input.csv")
+    output_dir = os.path.join(BASE_DIR, "output")
 
     try:
-        # 1. Đọc CSV
-        ref_list = CSVHandler.read_csv(input_path)
-        frame_count = 3
-
-        print("Đọc CSV thành công:", ref_list)
-
-        # 2. Chạy engine
+        test_cases = CSVHandler.read_csv(input_path)
         engine = SimulationEngine()
-        result = engine.run("LRU", ref_list, frame_count)
 
-        # 3. Ghi output CSV
-        CSVHandler.write_csv(output_path, result["results"])
+        for i, case in enumerate(test_cases):
+            frame_count = case["frame"]
+            ref_list = case["ref"]
 
-        print("Xuất file CSV thành công!")
+            print(f"\n=== TEST CASE {i+1} ===")
+
+            results_map = {}
+
+            for algo in ["FIFO", "LRU", "OPT"]:
+                result = engine.run(algo, ref_list, frame_count)
+
+                faults = result["total_faults"]
+                results_map[algo] = faults
+
+                print(f"{algo}: {faults} faults")
+
+                output_path = os.path.join(
+                    output_dir, f"test{i+1}_{algo.lower()}.csv"
+                )
+                CSVHandler.write_csv(output_path, result["results"])
+
+            ranking = build_ranking(results_map)
+
+            print("\n--- Ranking ---")
+            for algo in ["FIFO", "LRU", "OPT"]:
+                print(f"{algo}: {ranking[algo]}")
+
+        print("\n✅ Đã export tất cả test cases")
 
     except Exception as e:
-        print("Lỗi:", e)
+        print("❌ Lỗi:", e)
 
 
 # ================= MAIN =================
@@ -85,7 +115,7 @@ def main():
 
     demo_algorithms()
     test_engine()
-    test_csv()
+    export_all_algorithms()
 
 
 if __name__ == "__main__":

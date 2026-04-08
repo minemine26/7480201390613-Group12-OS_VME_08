@@ -4,8 +4,8 @@ import os
 
 class CSVHandler:
     """
-    Xử lý CSV:
-    - read_csv: đọc input
+    CSV Handler:
+    - read_csv: đọc input (multi test)
     - validate_format_file: kiểm tra file
     - write_csv: ghi output
     """
@@ -15,30 +15,41 @@ class CSVHandler:
     def read_csv(filepath):
         CSVHandler.validate_format_file(filepath)
 
-        pages = []
-
         try:
             with open(filepath, mode='r', encoding='utf-8-sig') as file:
-                reader = csv.reader(file)
+                lines = [line.strip() for line in file if line.strip()]
 
-                for row_index, row in enumerate(reader):
-                    for item in row:
-                        item = item.strip()
+            test_cases = []
+            current_frame = None
 
-                        if item:
-                            if not item.isdigit():
-                                raise ValueError(
-                                    f"Dữ liệu lỗi ở dòng {row_index + 1}: '{item}' không phải là số."
-                                )
-                            pages.append(int(item))
+            for line in lines:
+                if line.startswith("#"):
+                    continue
 
-            if not pages:
-                raise ValueError("File CSV rỗng hoặc không có dữ liệu hợp lệ.")
+                if line.startswith("frame="):
+                    current_frame = int(line.split("=")[1])
+
+                elif line.startswith("ref="):
+                    ref_str = line.split("=")[1]
+                    ref_list = [int(x) for x in ref_str.replace(",", " ").split()]
+
+                    if current_frame is None:
+                        raise ValueError("Thiếu frame trước ref")
+
+                    test_cases.append({
+                        "frame": current_frame,
+                        "ref": ref_list
+                    })
+
+                    current_frame = None
+
+            if not test_cases:
+                raise ValueError("Không có test case hợp lệ")
+
+            return test_cases
 
         except Exception as e:
-            raise RuntimeError(f"Lỗi khi đọc file CSV: {e}")
-
-        return pages
+            raise RuntimeError(f"Lỗi đọc CSV: {e}")
 
     # ================= VALIDATE =================
     @staticmethod
@@ -56,16 +67,13 @@ class CSVHandler:
     @staticmethod
     def write_csv(filepath, results):
         try:
-            # Tạo folder nếu chưa có
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
             with open(filepath, mode='w', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file)
 
-                # Header
                 writer.writerow(["Step", "Page", "Frames", "Fault"])
 
-                # Data
                 for step in results:
                     writer.writerow([
                         step.get("step"),
