@@ -126,8 +126,7 @@ if __name__ == "__main__":
     
 #================ Chart Handler =================
 from engine import SimulationEngine
-from utils.chart_handler import ChartHandler
-import matplotlib.pyplot as plt
+from utils import ChartHandler
 
 
 def print_result(result):
@@ -154,80 +153,19 @@ def print_comparison(compare):
         print(f"{name}: {data['faults']} faults")
 
 
-def demo_algorithms(engine, ref_list, frame_count):
-    print("\n=== DEMO ALGORITHMS ===")
+if __name__ == "__main__":
+    engine = SimulationEngine()
+
+    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
+    frame_count = 3
+
     for algo in ["FIFO", "LRU", "OPT"]:
         result = engine.run(algo, ref_list, frame_count)
         print_result(result)
 
-
-def test_engine(engine, ref_list, frame_count):
-    print("\n=== TEST SIMULATION ENGINE ===")
-    result = engine.run("LRU", ref_list, frame_count)
-    print("Algorithm:", result["algorithm"])
-    print("Total faults:", result["total_faults"])
-
-
-def draw_charts(engine, ref_list, frame_count):
-    print("\n=== DRAW CHARTS ===")
-
     compare = engine.run_all(ref_list, frame_count)
     print_comparison(compare)
 
-    fifo_result = engine.run("FIFO", ref_list, frame_count)
-    lru_result = engine.run("LRU", ref_list, frame_count)
-    opt_result = engine.run("OPT", ref_list, frame_count)
-
-    # 7.1 Biểu đồ cột so sánh faults
-    ChartHandler.plot_fault_comparison(compare)
-
-    # 7.2 Biểu đồ cumulative faults riêng từng thuật toán
-    ChartHandler.plot_cumulative_faults(fifo_result["results"], "FIFO")
-    ChartHandler.plot_cumulative_faults(lru_result["results"], "LRU")
-    ChartHandler.plot_cumulative_faults(opt_result["results"], "OPT")
-
-    # Bonus: gộp 3 thuật toán trên cùng 1 biểu đồ
-    ChartHandler.plot_all_cumulative_faults({
-        "FIFO": fifo_result["results"],
-        "LRU": lru_result["results"],
-        "OPT": opt_result["results"]
-    })
-
-    # Hiển thị tất cả đồ thị cùng lúc
-    plt.show()
-
-
-def main():
-    print("=== PAGE REPLACEMENT SIMULATOR ===")
-
-    engine = SimulationEngine()
-
-    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
-    frame_count = 3
-
-    demo_algorithms(engine, ref_list, frame_count)
-    test_engine(engine, ref_list, frame_count)
-    draw_charts(engine, ref_list, frame_count)
-
-
-if __name__ == "__main__":
-    main()
-    engine = SimulationEngine()
-
-    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
-    frame_count = 3
-
-    # Chạy tất cả thuật toán
-    compare = engine.run_all(ref_list, frame_count)
-
-    # 7.1 Vẽ biểu đồ cột so sánh faults
-    ChartHandler.plot_fault_comparison(compare)
-
-    # 7.2 Vẽ cumulative faults cho từng thuật toán
-    fifo_result = engine.run("FIFO", ref_list, frame_count)
-    lru_result = engine.run("LRU", ref_list, frame_count)
-    opt_result = engine.run("OPT", ref_list, frame_count)
-
-    ChartHandler.plot_cumulative_faults(fifo_result["results"], "FIFO")
-    ChartHandler.plot_cumulative_faults(lru_result["results"], "LRU")
-    ChartHandler.plot_cumulative_faults(opt_result["results"], "OPT")
+    ChartHandler.plot_page_fault_comparison(compare)
+    ChartHandler.plot_cumulative_faults(compare)
+    ChartHandler.show_all()

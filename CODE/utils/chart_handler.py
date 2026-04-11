@@ -2,86 +2,73 @@ import matplotlib.pyplot as plt
 
 
 class ChartHandler:
-    """
-    Xử lý vẽ biểu đồ cho hệ thống mô phỏng thay thế trang
-    """
-
     @staticmethod
-    def plot_fault_comparison(compare_result):
-        """
-        7.1 Bar chart:
-        So sánh tổng số page faults giữa FIFO, LRU, OPT
-        compare_result có dạng:
-        {
-            "FIFO": {"faults": 7, "results": [...]},
-            "LRU": {"faults": 6, "results": [...]},
-            "OPT": {"faults": 6, "results": [...]}
-        }
-        """
-        labels = list(compare_result.keys())
-        faults = [compare_result[name]["faults"] for name in labels]
+    def plot_page_fault_comparison(compare_result):
+        plt.close("all")
+
+        algorithms = list(compare_result.keys())
+        faults = [compare_result[name]["faults"] for name in algorithms]
 
         plt.figure(figsize=(8, 5))
-        plt.bar(labels, faults)
+        plt.bar(algorithms, faults)
         plt.title("Page Fault Comparison")
         plt.xlabel("Algorithm")
         plt.ylabel("Total Page Faults")
-        plt.grid(axis="y", linestyle="--", alpha=0.5)
+        plt.grid(axis="y", linestyle="--", alpha=0.6)
         plt.tight_layout()
 
     @staticmethod
-    def plot_cumulative_faults(results, algorithm_name):
-        """
-        7.2 Cumulative faults:
-        Vẽ đường tăng dần của số page faults theo từng bước
-        """
-        steps = []
-        cumulative_faults = []
+    def plot_cumulative_faults(compare_result):
+        plt.figure(figsize=(10, 6))
 
-        fault_count = 0
-        for step in results:
-            if step["fault"]:
-                fault_count += 1
-            steps.append(step["step"])
-            cumulative_faults.append(fault_count)
+        # DEBUG để biết chắc file mới đang được chạy
+        print(">>> NEW CHART_HANDLER LOADED <<<")
 
-        plt.figure(figsize=(8, 5))
-        plt.plot(steps, cumulative_faults, marker="o")
-        plt.title(f"Cumulative Page Faults - {algorithm_name}")
-        plt.xlabel("Step")
-        plt.ylabel("Cumulative Faults")
-        plt.grid(True, linestyle="--", alpha=0.5)
-        plt.tight_layout()
-
-    @staticmethod
-    def plot_all_cumulative_faults(results_map):
-        """
-        Vẽ cumulative faults của nhiều thuật toán trên cùng một biểu đồ
-        results_map có dạng:
-        {
-            "FIFO": [...],
-            "LRU": [...],
-            "OPT": [...]
+        styles = {
+            "FIFO": {"linestyle": "-", "marker": "o"},
+            "LRU": {"linestyle": "--", "marker": "s"},
+            "OPT": {"linestyle": ":", "marker": "^"},
         }
-        """
-        plt.figure(figsize=(8, 5))
 
-        for algorithm_name, results in results_map.items():
+        draw_order = ["FIFO", "OPT", "LRU"]
+
+        for algo_name in draw_order:
+            data = compare_result[algo_name]
+            results = data["results"]
+
             steps = []
             cumulative_faults = []
             fault_count = 0
 
-            for step in results:
-                if step["fault"]:
+            for step_data in results:
+                steps.append(step_data["step"])
+                if step_data["fault"]:
                     fault_count += 1
-                steps.append(step["step"])
                 cumulative_faults.append(fault_count)
 
-            plt.plot(steps, cumulative_faults, marker="o", label=algorithm_name)
+            # tách đường rõ hơn
+            if algo_name == "OPT":
+                cumulative_faults = [x - 0.2 for x in cumulative_faults]
+            elif algo_name == "LRU":
+                cumulative_faults = [x + 0.2 for x in cumulative_faults]
+
+            plt.plot(
+                steps,
+                cumulative_faults,
+                label=algo_name,
+                linestyle=styles[algo_name]["linestyle"],
+                marker=styles[algo_name]["marker"],
+                linewidth=2.5,
+                markersize=8
+            )
 
         plt.title("Cumulative Page Faults Comparison")
         plt.xlabel("Step")
         plt.ylabel("Cumulative Faults")
-        plt.grid(True, linestyle="--", alpha=0.5)
         plt.legend()
+        plt.grid(True, linestyle="--", alpha=0.6)
         plt.tight_layout()
+
+    @staticmethod
+    def show_all():
+        plt.show()

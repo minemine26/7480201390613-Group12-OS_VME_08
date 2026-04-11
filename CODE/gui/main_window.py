@@ -3,7 +3,6 @@ import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 import os
 import sys
-import matplotlib.pyplot as plt
 
 # ===== FIX PATH =====
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -12,8 +11,8 @@ sys.path.append(BASE_DIR)
 # ===== IMPORT =====
 from engine.simulation_engine import SimulationEngine
 from utils.file_handler import CSVHandler
-from utils.chart_handler import ChartHandler
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+
 class PageReplacementGUI:
     def __init__(self, root):
         self.is_auto_playing = False
@@ -76,8 +75,7 @@ class PageReplacementGUI:
         tk.Button(btn_frame, text="SHOW PROOF", bg="#e67e22", fg="white", command=self.show_comparison_proof).pack(side=tk.LEFT, padx=2)
         tk.Button(btn_frame, text="EXPORT", bg="gray", fg="white", command=self.export_gui).pack(side=tk.LEFT, padx=2)
         tk.Button(btn_frame, text="HELP", bg="#f1c40f", command=self.show_help).pack(side=tk.LEFT, padx=2)
-        tk.Button(btn_frame, text="SHOW CHARTS", bg="#2980b9", fg="white", command=self.show_charts_window).pack(side=tk.LEFT, padx=2)
-        
+
         # ===== VISUALIZATION =====
         self.visual_frame = tk.LabelFrame(self.root, text="Mô phỏng bộ nhớ (Đỏ = Fault, Xanh = Hit)")
         self.visual_frame.pack(fill=tk.X, padx=10, pady=5)
@@ -355,66 +353,7 @@ class PageReplacementGUI:
                 for step in self.steps:
                     writer.writerow([step["step"], step["page"], " | ".join(map(str, step["frames"])), step["fault"]])
             messagebox.showinfo("Thành công", f"Đã lưu kết quả tại:\n{file_path}")
-            
-    def show_charts_window(self):
-        if not self.file_path:
-            messagebox.showerror("Lỗi", "Vui lòng chọn file CSV trước!")
-            return
 
-        try:
-            frame_input = int(self.frame_entry.get()) if self.frame_entry.get().isdigit() else 3
-            data = CSVHandler.read_csv(self.file_path)
-            if isinstance(data, list) and isinstance(data[0], dict):
-                case = next((item for item in data if int(item["frame"]) == frame_input), data[0])
-                ref_list, frame_count = case["ref"], case["frame"]
-            else:
-                ref_list, frame_count = data, frame_input
-
-            compare_result, results_map = {}, {}
-            for algo in ["FIFO", "LRU", "OPT"]:
-                sim = self.engine.run(algo, ref_list, frame_count)
-                compare_result[algo] = {"faults": sum(1 for s in sim["results"] if s["fault"]), "results": sim["results"]}
-                results_map[algo] = sim["results"]
-
-            chart_win = tk.Toplevel(self.root)
-            chart_win.title("Biểu đồ Thống kê Page Faults")
-            chart_win.geometry("800x600")
-
-            notebook = ttk.Notebook(chart_win)
-            notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-            plt.close('all')
-
-            current_algo = self.algo_var.get()
-            charts_data = [
-                ("Bar Graph", ChartHandler.plot_fault_comparison, (compare_result,)),
-                (f"Line Graph ({current_algo})", ChartHandler.plot_cumulative_faults, (results_map[current_algo], current_algo)),
-                ("Line Graph (ALL)", ChartHandler.plot_all_cumulative_faults, (results_map,))
-            ]
-
-            figs = []
-            for title, func, args in charts_data:
-                tab = ttk.Frame(notebook)
-                notebook.add(tab, text=title)
-                func(*args)
-                fig = plt.gcf()
-                figs.append(fig)
-                canvas = FigureCanvasTkAgg(fig, master=tab)
-                canvas.draw()
-                canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True) # Chỉ lấy ảnh biểu đồ, loại bỏ thanh zoom/pan
-
-            def export_current_chart():
-                current_idx = notebook.index(notebook.select())
-                save_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG Image", "*.png")])
-                if save_path:
-                    figs[current_idx].savefig(save_path)
-                    messagebox.showinfo("Thành công", f"Đã lưu biểu đồ tại:\n{save_path}")
-
-            tk.Button(chart_win, text="SAVE IMAGE", bg="#27ae60", fg="white", font=("Arial", 10, "bold"), command=export_current_chart).pack(pady=10)
-
-        except Exception as e:
-            messagebox.showerror("Error", f"Lỗi khi hiển thị biểu đồ: {str(e)}")
-            
 # ================= RUN =================
 if __name__ == "__main__":
     root = tk.Tk()
