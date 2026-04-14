@@ -13,6 +13,7 @@
 
 ## 📁 Repository Structure (Cấu trúc thư mục)
 - `CODE/`: Chứa toàn bộ mã nguồn (Source code) Python của ứng dụng.
+- `test/`: Chứa file test .
 - `DOCX/`: Chứa file báo cáo định dạng Word tổng kết quá trình làm đồ án, các thuật toán và bài học kinh nghiệm.
 - `Extra/`: Chứa các tài liệu bổ sung, bằng chứng kiểm thử (video demo, ảnh chụp màn hình).
 - `PPTX/`: Chứa file slide thuyết trình PowerPoint.
