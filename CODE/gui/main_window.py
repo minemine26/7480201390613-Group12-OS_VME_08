@@ -359,3 +359,20 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = PageReplacementGUI(root)
     root.mainloop()
+
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow
+
+
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow
+
+
+def main():
+    root = tk.Tk()
+    app = PageReplacementGUI(root)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()

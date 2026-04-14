@@ -152,3 +152,39 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+import os
+from CODE.engine.simulation_engine import SimulationEngine
+from CODE.utils.file_handler import CSVHandler
+
+
+def main():
+    print("\n=== AUTO EXPORT + MULTI TEST ===")
+
+    # 1. Gọi logic chính từ CODE/main.py
+    export_all_algorithms()
+
+    # 2. Load toàn bộ kết quả
+    all_results = load_all_faults()
+    if all_results is None:
+        print("❌ Không load được dữ liệu")
+        return
+
+    print("\n===== KẾT QUẢ TỪNG TEST =====")
+
+    # 3. Test từng case
+    for test_id, faults_map in all_results.items():
+        test_theoretical_correctness(test_id, faults_map)
+
+    print("\n===== SO SÁNH & XẾP HẠNG =====")
+
+    # 4. Summary
+    summary = build_summary(all_results)
+
+    for row in summary:
+        print(f"{row[0]} | {row[1]} | Faults: {row[2]} | {row[3]}")
+
+    # 5. Export file tổng hợp
+    export_comparison(summary)
+
+    print("\n✅ DONE ALL TESTS")

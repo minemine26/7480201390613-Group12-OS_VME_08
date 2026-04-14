@@ -110,3 +110,26 @@ def test_comparison():
 # ================= MAIN =================
 if __name__ == "__main__":
     test_comparison()
+
+def main():
+    print("===== TEST ALGORITHMS =====")
+
+    # Ví dụ test
+    ref_string = [7, 0, 1, 2, 0, 3, 0, 4]
+    frame = 3
+
+    from CODE.engine.simulation_engine import SimulationEngine
+
+    engine = SimulationEngine()
+
+    for algo in ["FIFO", "LRU", "OPT"]:
+        result = engine.run(algo, ref_string, frame)
+
+        faults = sum(1 for step in result["results"] if step["fault"])
+
+        print(f"\nAlgorithm: {algo}")
+        print(f"Reference: {ref_string}")
+        print(f"Frame: {frame}")
+        print(f"Total Page Faults: {faults}")
+
+    print("\n===== DONE =====")
