@@ -1,10 +1,13 @@
 import sys
 import os
 
-# Thêm đường dẫn để import từ CODE/
-sys.path.append(os.path.abspath("CODE"))
 
-from CODE.algorithms import FIFO, LRU, OPT
+# Thêm đường dẫn tới thư mục CODE
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "CODE")))
+
+from algorithms.fifo import FIFO
+from algorithms.lru import LRU
+from algorithms.opt import OPT
 
 
 # ================= COMMON =================
