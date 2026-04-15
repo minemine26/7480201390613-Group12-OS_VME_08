@@ -1,0 +1,177 @@
+import os
+import sys
+
+# ================= PATH SETUP =================
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+if CURRENT_DIR not in sys.path:
+    sys.path.append(CURRENT_DIR)
+
+from algorithms import FIFO, LRU, OPT
+from engine import SimulationEngine
+from utils.file_handler import CSVHandler
+from utils.chart_handler import ChartHandler
+
+
+# ================= PRINT RAW ALGORITHM RESULT =================
+def print_algorithm_result(name, result):
+    print(f"\n=== {name} ===")
+
+    for step in result:
+        print(
+            f"Step {step['step']:2} | "
+            f"Page: {step['page']:2} | "
+            f"Frames: {step['frames']} | "
+            f"Fault: {step['fault']}"
+        )
+
+    total_faults = sum(1 for r in result if r["fault"])
+    print("-" * 50)
+    print(f"Total Page Faults: {total_faults}")
+
+
+# ================= PRINT ENGINE RESULT =================
+def print_engine_result(result):
+    print(f"\n=== {result['algorithm']} ===")
+    print(f"Frame count: {result['frame_count']}")
+    print(f"Reference string: {result['reference_string']}")
+    print("-" * 50)
+
+    for step in result["results"]:
+        print(
+            f"Step {step['step']:2} | "
+            f"Page: {step['page']:2} | "
+            f"Frames: {step['frames']} | "
+            f"Fault: {step['fault']}"
+        )
+
+    print("-" * 50)
+    print(f"Total Page Faults: {result['total_faults']}")
+
+
+def print_comparison(compare):
+    print("\n=== COMPARISON ===")
+    for name, data in compare.items():
+        print(f"{name}: {data['faults']} faults")
+
+
+# ================= DEMO =================
+def demo_algorithms():
+    print("\n=== DEMO ALGORITHMS ===")
+
+    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
+    frame_count = 3
+
+    print_algorithm_result("FIFO", FIFO().simulate(ref_list, frame_count))
+    print_algorithm_result("LRU", LRU().simulate(ref_list, frame_count))
+    print_algorithm_result("OPT", OPT().simulate(ref_list, frame_count))
+
+
+# ================= ENGINE =================
+def test_engine():
+    print("\n=== TEST SIMULATION ENGINE ===")
+
+    engine = SimulationEngine()
+    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
+
+    result = engine.run("LRU", ref_list, 3)
+    print_engine_result(result)
+
+
+# ================= CHART =================
+def test_charts():
+    print("\n=== CHART COMPARISON ===")
+
+    engine = SimulationEngine()
+    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
+    frame_count = 3
+
+    compare = engine.run_all(ref_list, frame_count)
+    print_comparison(compare)
+
+    ChartHandler.plot_page_fault_comparison(compare)
+    ChartHandler.plot_cumulative_faults(compare)
+    ChartHandler.show_all()
+
+
+# ================= BUILD RANKING =================
+def build_ranking(results_map):
+    sorted_algos = sorted(results_map.items(), key=lambda x: x[1])
+
+    labels = ["BEST", "BETTER", "WORST"]
+    ranking = {}
+
+    for i, (algo, _) in enumerate(sorted_algos):
+        if i < len(labels):
+            ranking[algo] = labels[i]
+        else:
+            ranking[algo] = "UNKNOWN"
+
+    return ranking
+
+
+# ================= EXPORT =================
+def export_all_algorithms():
+    print("\n=== EXPORT ALL ALGORITHMS ===")
+
+    ROOT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
+
+    # Nếu nhóm mày đã chuyển input/output vào Extra
+    input_path = os.path.join(ROOT_DIR, "Extra", "input", "input.csv")
+    output_dir = os.path.join(ROOT_DIR, "Extra", "output")
+
+    # Nếu CHƯA chuyển thì dùng 2 dòng này thay cho 2 dòng trên:
+    # input_path = os.path.join(ROOT_DIR, "input", "input.csv")
+    # output_dir = os.path.join(ROOT_DIR, "output")
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    try:
+        test_cases = CSVHandler.read_csv(input_path)
+        engine = SimulationEngine()
+
+        for i, case in enumerate(test_cases):
+            frame_count = case["frame"]
+            ref_list = case["ref"]
+
+            print(f"\n=== TEST CASE {i + 1} ===")
+
+            results_map = {}
+
+            for algo in ["FIFO", "LRU", "OPT"]:
+                result = engine.run(algo, ref_list, frame_count)
+
+                faults = result["total_faults"]
+                results_map[algo] = faults
+
+                print(f"{algo}: {faults} faults")
+
+                output_path = os.path.join(
+                    output_dir, f"test{i + 1}_{algo.lower()}.csv"
+                )
+                CSVHandler.write_csv(output_path, result["results"])
+
+            ranking = build_ranking(results_map)
+
+            print("\n--- Ranking ---")
+            for algo in ["FIFO", "LRU", "OPT"]:
+                print(f"{algo}: {ranking[algo]}")
+
+        print("\n✅ Đã export tất cả test cases")
+
+    except Exception as e:
+        print("❌ Lỗi:", e)
+
+
+# ================= MAIN =================
+def main():
+    print("=== PAGE REPLACEMENT SIMULATOR ===")
+
+    demo_algorithms()
+    test_engine()
+    test_charts()
+    # export_all_algorithms()
+
+
+if __name__ == "__main__":
+    main()

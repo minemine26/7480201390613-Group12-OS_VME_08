@@ -1,166 +1,108 @@
-import os
 import sys
+import os
 
-CURRENT_DIR = os.path.dirname(__file__)
-sys.path.append(CURRENT_DIR)
-
-from algorithms import FIFO, LRU, OPT
-from engine import SimulationEngine
-from utils.file_handler import CSVHandler
-from utils.chart_handler import ChartHandler
+# ================== FIX PATH ==================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 
 
-# ================= PRINT RAW ALGORITHM RESULT =================
-def print_algorithm_result(name, result):
-    print(f"\n=== {name} ===")
+# ================== RUN FUNCTIONS ==================
 
-    for step in result:
-        print(
-            f"Step {step['step']:2} | "
-            f"Page: {step['page']:2} | "
-            f"Frames: {step['frames']} | "
-            f"Fault: {step['fault']}"
-        )
-
-    total_faults = sum(1 for r in result if r["fault"])
-    print("-" * 50)
-    print(f"Total Page Faults: {total_faults}")
-
-
-# ================= PRINT ENGINE RESULT =================
-def print_engine_result(result):
-    print(f"\n=== {result['algorithm']} ===")
-    print(f"Frame count: {result['frame_count']}")
-    print(f"Reference string: {result['reference_string']}")
-    print("-" * 50)
-
-    for step in result["results"]:
-        print(
-            f"Step {step['step']:2} | "
-            f"Page: {step['page']:2} | "
-            f"Frames: {step['frames']} | "
-            f"Fault: {step['fault']}"
-        )
-
-    print("-" * 50)
-    print(f"Total Page Faults: {result['total_faults']}")
-
-
-def print_comparison(compare):
-    print("\n=== COMPARISON ===")
-    for name, data in compare.items():
-        print(f"{name}: {data['faults']} faults")
-
-
-# ================= DEMO =================
-def demo_algorithms():
-    print("\n=== DEMO ALGORITHMS ===")
-
-    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
-    frame_count = 3
-
-    print_algorithm_result("FIFO", FIFO().simulate(ref_list, frame_count))
-    print_algorithm_result("LRU", LRU().simulate(ref_list, frame_count))
-    print_algorithm_result("OPT", OPT().simulate(ref_list, frame_count))
-
-
-# ================= ENGINE =================
-def test_engine():
-    print("\n=== TEST SIMULATION ENGINE ===")
-
-    engine = SimulationEngine()
-    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
-
-    result = engine.run("LRU", ref_list, 3)
-
-    print("Algorithm:", result["algorithm"])
-    print("Total faults:", result["total_faults"])
-
-
-# ================= CHART =================
-def test_charts():
-    print("\n=== CHART COMPARISON ===")
-
-    engine = SimulationEngine()
-    ref_list = [7, 0, 1, 2, 0, 3, 0, 4]
-    frame_count = 3
-
-    compare = engine.run_all(ref_list, frame_count)
-    print_comparison(compare)
-
-    ChartHandler.plot_page_fault_comparison(compare)
-    ChartHandler.plot_cumulative_faults(compare)
-    ChartHandler.show_all()
-
-
-# ================= BUILD RANKING =================
-def build_ranking(results_map):
-    sorted_algos = sorted(results_map.items(), key=lambda x: x[1])
-
-    labels = ["BEST", "BETTER", "WORST"]
-    ranking = {}
-
-    for i, (algo, _) in enumerate(sorted_algos):
-        ranking[algo] = labels[i]
-
-    return ranking
-
-
-# ================= EXPORT =================
-def export_all_algorithms():
-    print("\n=== EXPORT ALL ALGORITHMS ===")
-
-    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    input_path = os.path.join(BASE_DIR, "input", "input.csv")
-    output_dir = os.path.join(BASE_DIR, "output")
-
-    os.makedirs(output_dir, exist_ok=True)
-
+def run_simulation():
+    """Chạy mô phỏng chính"""
     try:
-        test_cases = CSVHandler.read_csv(input_path)
-        engine = SimulationEngine()
+        from main_logic import main as simulation_main
+        print("\n[INFO] Running Simulation...\n")
+        simulation_main()
+    except Exception as e:
+        print("[ERROR] Simulation:", e)
 
-        for i, case in enumerate(test_cases):
-            frame_count = case["frame"]
-            ref_list = case["ref"]
 
-            print(f"\n=== TEST CASE {i+1} ===")
+def run_gui():
+    """Chạy GUI"""
+    try:
+        print("\n[INFO] Opening GUI...\n")
+        from gui.main_window import main as gui_main
+        gui_main()
+    except Exception as e:
+        print("[ERROR] GUI:", e)
 
-            results_map = {}
 
-            for algo in ["FIFO", "LRU", "OPT"]:
-                result = engine.run(algo, ref_list, frame_count)
+def run_test_algorithms():
+    """Chạy test thuật toán"""
+    try:
+        print("\n[INFO] Running Algorithm Tests...\n")
+        from test.test_algorithms import main as test_algo_main
+        test_algo_main()
+    except Exception as e:
+        print("[ERROR] Test Algorithms:", e)
 
-                faults = result["total_faults"]
-                results_map[algo] = faults
 
-                print(f"{algo}: {faults} faults")
+def run_test_csv():
+    """Chạy test CSV và export full multi-test"""
+    try:
+        print("\n[INFO] Running CSV Test (Multi-case + Comparison)...\n")
 
-                output_path = os.path.join(
-                    output_dir, f"test{i+1}_{algo.lower()}.csv"
-                )
-                CSVHandler.write_csv(output_path, result["results"])
+        import importlib
+        test_module = importlib.import_module("test.test_from_csv")
+        importlib.reload(test_module)
+        test_module.main()
 
-            ranking = build_ranking(results_map)
+    except ModuleNotFoundError as e:
+        print("[ERROR] Không tìm thấy module test:", e)
 
-            print("\n--- Ranking ---")
-            for algo in ["FIFO", "LRU", "OPT"]:
-                print(f"{algo}: {ranking[algo]}")
-
-        print("\n✅ Đã export tất cả test cases")
+    except AttributeError:
+        print("[ERROR] File test_from_csv.py không có hàm main()")
 
     except Exception as e:
-        print("❌ Lỗi:", e)
+        print("[ERROR] Test CSV:", e)
 
 
-# ================= MAIN =================
+# ================== MENU ==================
+
+def show_menu():
+    print("\n==============================")
+    print("      OS PROJECT MENU")
+    print("==============================")
+    print("1. Chạy mô phỏng (Simulation)")
+    print("2. Chạy GUI")
+    print("3. Test thuật toán")
+    print("4. Test CSV (xuất output)")
+    print("0. Thoát")
+    print("==============================")
+
+
+def handle_choice(choice):
+    if choice == "1":
+        run_simulation()
+    elif choice == "2":
+        run_gui()
+    elif choice == "3":
+        run_test_algorithms()
+    elif choice == "4":
+        run_test_csv()
+    elif choice == "0":
+        print("Thoát chương trình.")
+        sys.exit(0)
+    else:
+        print("Lựa chọn không hợp lệ! Vui lòng chọn lại.")
+
+
+# ================== MAIN ==================
+
 def main():
-    print("=== PAGE REPLACEMENT SIMULATOR ===")
-
-    demo_algorithms()
-    test_engine()
-    test_charts()
-    # export_all_algorithms()
+    """Entry point của hệ thống"""
+    while True:
+        try:
+            show_menu()
+            choice = input("Chọn chức năng: ").strip()
+            handle_choice(choice)
+        except KeyboardInterrupt:
+            print("\n[INFO] Dừng chương trình.")
+            sys.exit(0)
+        except Exception as e:
+            print("[ERROR] Unexpected:", e)
 
 
 if __name__ == "__main__":
