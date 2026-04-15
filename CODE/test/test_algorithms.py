@@ -1,13 +1,15 @@
 import sys
 import os
 
-
-# Thêm đường dẫn tới thư mục CODE
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "CODE")))
+# ================= FIX PATH =================
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 
 from algorithms.fifo import FIFO
 from algorithms.lru import LRU
 from algorithms.opt import OPT
+from engine.simulation_engine import SimulationEngine
 
 
 # ================= COMMON =================
@@ -25,7 +27,6 @@ def test_fifo():
 
     fifo = FIFO()
     results = fifo.simulate(ref_list, frame_count)
-
     actual_faults = count_faults(results)
 
     print(f"Expected faults: {expected_faults}")
@@ -49,7 +50,6 @@ def test_lru():
 
     lru = LRU()
     results = lru.simulate(ref_list, frame_count)
-
     actual_faults = count_faults(results)
 
     print(f"Expected faults: {expected_faults}")
@@ -73,7 +73,6 @@ def test_opt():
 
     opt = OPT()
     results = opt.simulate(ref_list, frame_count)
-
     actual_faults = count_faults(results)
 
     print(f"Expected faults: {expected_faults}")
@@ -100,31 +99,23 @@ def test_comparison():
     print(f"LRU faults : {lru_faults}")
     print(f"OPT faults : {opt_faults}")
 
-    # Kiểm tra lý thuyết
     if opt_faults <= lru_faults <= fifo_faults:
         print("✅ Đúng lý thuyết: OPT ≤ LRU ≤ FIFO")
     else:
         print("❌ Sai lý thuyết")
 
 
-# ================= MAIN =================
-if __name__ == "__main__":
-    test_comparison()
+# ================= ENGINE TEST =================
+def test_engine():
+    print("\n===== TEST ENGINE =====")
 
-def main():
-    print("===== TEST ALGORITHMS =====")
-
-    # Ví dụ test
     ref_string = [7, 0, 1, 2, 0, 3, 0, 4]
     frame = 3
-
-    from CODE.engine.simulation_engine import SimulationEngine
 
     engine = SimulationEngine()
 
     for algo in ["FIFO", "LRU", "OPT"]:
         result = engine.run(algo, ref_string, frame)
-
         faults = sum(1 for step in result["results"] if step["fault"])
 
         print(f"\nAlgorithm: {algo}")
@@ -133,3 +124,14 @@ def main():
         print(f"Total Page Faults: {faults}")
 
     print("\n===== DONE =====")
+
+
+# ================= MAIN =================
+def main():
+    print("===== TEST ALGORITHMS =====")
+    test_comparison()
+    test_engine()
+
+
+if __name__ == "__main__":
+    main()
