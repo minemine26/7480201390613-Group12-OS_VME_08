@@ -5,3 +5,4 @@ __pycache__/
 .vscode/
 # output/
 *.csv
+!input/*.csv
