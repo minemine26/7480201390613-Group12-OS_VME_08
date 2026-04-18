@@ -83,7 +83,6 @@ OS_PROJECT/
 │
 ├── CODE/
 │   ├── main_logic.py        # Core simulation
-│
 │   ├── algorithms/          # FIFO, LRU, OPT
 │   ├── engine/              # Simulation engine
 │   ├── gui/                 # GUI
