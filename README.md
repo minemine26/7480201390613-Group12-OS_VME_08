@@ -87,7 +87,6 @@ OS_PROJECT/
 │   ├── algorithms/          # FIFO, LRU, OPT
 │   ├── engine/              # Simulation engine
 │   ├── gui/                 # GUI
-│   ├── models/              # Data model
 │   ├── utils/               # CSV + chart
 │   └── test/                # Testing
 │
